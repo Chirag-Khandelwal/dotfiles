@@ -1,6 +1,6 @@
 set SCRIPT_DIR (realpath (status dirname))
 
-if ! test "/bin/zsh"
+if ! test -f "/bin/zsh"
 	echo "Install zsh first"
 	exit 1
 end
