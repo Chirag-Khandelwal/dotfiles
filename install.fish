@@ -1,0 +1,13 @@
+set SCRIPT_DIR (realpath (status dirname))
+
+echo "Using SCRIPT_DIR=$SCRIPT_DIR"
+mkdir -p ~/.config/fish/functions
+ln -sf "$SCRIPT_DIR/dotzshrc" ~/.zshrc
+ln -sf "$SCRIPT_DIR/config.fish" ~/.config/fish/config.fish
+cp $SCRIPT_DIR/fish_functions/* ~/.config/fish/functions/
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+fisher install IlanCosman/tide@v6
+fisher install jorgebucaran/spark.fish
+tide configure --auto --style=Rainbow --prompt_colors='16 colors' --show_time='24-hour format' --rainbow_prompt_separators=Slanted --powerline_prompt_heads=Sharp --powerline_prompt_tails=Flat --powerline_prompt_style='Two lines, character and frame' --prompt_connection=Dotted --powerline_right_prompt_frame=Yes --prompt_spacing=Sparse --icons='Many icons' --transient=Yes
+
+echo "Make sure to install 'eza' program for 'l' and 't' commands to work."
