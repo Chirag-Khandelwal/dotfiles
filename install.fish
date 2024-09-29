@@ -1,5 +1,10 @@
 set SCRIPT_DIR (realpath (status dirname))
 
+if ! test "/bin/zsh"
+	echo "Install zsh first"
+	exit 1
+end
+chsh -s /bin/zsh
 echo "Using SCRIPT_DIR=$SCRIPT_DIR"
 mkdir -p ~/.config/fish/functions
 ln -sf "$SCRIPT_DIR/dotzshrc" ~/.zshrc
