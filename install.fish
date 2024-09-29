@@ -6,9 +6,11 @@ if ! test "/bin/zsh"
 end
 chsh -s /bin/zsh
 echo "Using SCRIPT_DIR=$SCRIPT_DIR"
-mkdir -p ~/.config/fish/functions
+mkdir -p ~/.config/fish/functions ~/.config/nvim
 ln -sf "$SCRIPT_DIR/dotzshrc" ~/.zshrc
 ln -sf "$SCRIPT_DIR/config.fish" ~/.config/fish/config.fish
+ln -sf "$SCRIPT_DIR/dotvimrc" ~/.vimrc
+ln -sf "$SCRIPT_DIR/dotvimrc" ~/.config/nvim/init.vim
 cp $SCRIPT_DIR/fish_functions/* ~/.config/fish/functions/
 curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
 fisher install IlanCosman/tide@v6
