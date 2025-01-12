@@ -1,3 +1,5 @@
+export EDITOR="nvim"
+
 export PATH="$HOME/.feral/bin:$PATH"
 
 eval $(keychain --eval --agents ssh $(/bin/ls ~/.ssh/id_* | grep -v '.pub'))
