@@ -1,7 +1,12 @@
-export EDITOR="nvim"
+export EDITOR=nvim
+export PAGER=less
 
-export PATH="$HOME/.feral/bin:$PATH"
+export PATH="$HOME/.feral/bin:$HOME/.scribe/bin:$PATH"
 
-eval $(keychain --eval --agents ssh $(/bin/ls ~/.ssh/id_* | grep -v '.pub'))
+eval $(keychain --eval --agents ssh $(/bin/ls ~/.ssh/ | grep 'id_' | grep -v '.pub'))
 
-exec fish
+if [[ $(ps --no-header --pid=$PPID --format=comm) != "fish" && -z ${ZSH_EXECUTION_STRING} && ${SHLVL} == 1 ]]; then
+	if [[ -o login ]]; then LOGIN_OPTIONS='--login'; else LOGIN_OPTIONS=''; fi
+	exec fish $LOGIN_OPTIONS
+fi
+

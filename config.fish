@@ -1,6 +1,13 @@
 if status is-interactive
 	# Commands to run in interactive sessions can go here
 
+	if not test -f $__fish_config_dir/.first-run
+		curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
+		fisher install jorgebucaran/fisher && fisher install jorgebucaran/spark.fish decors/fish-colored-man IlanCosman/tide@v6
+		tide configure --auto --style=Rainbow --prompt_colors='16 colors' --show_time='24-hour format' --rainbow_prompt_separators=Slanted --powerline_prompt_heads=Slanted --powerline_prompt_tails=Slanted --powerline_prompt_style='Two lines, character and frame' --prompt_connection=Dotted --powerline_right_prompt_frame=Yes --prompt_spacing=Sparse --icons='Many icons' --transient=No
+		touch $__fish_config_dir/.first-run
+	end
+
 	# Git commands
 	abbr --add ga 'git add'
 	abbr --add gb 'git branch'
