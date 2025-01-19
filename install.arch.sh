@@ -39,7 +39,7 @@ mount "${BOOT_DRIVE}1" /mnt/boot
 
 echo -e "\e[95m\e[1m==>> Bootstrapping the partitions using pacstrap ...\e[0m"
 sed -i "s/#ParallelDownloads = [0-9]\+/ParallelDownloads = $(nproc)/g" /etc/pacman.conf
-pacstrap -K /mnt base base-devel linux$KERNEL_VARIANT linux$KERNEL_VARIANT-headers linux-firmware dkms zsh fish neofetch neovim less bat openssh git ccache keychain eza
+pacstrap -K /mnt base base-devel linux$KERNEL_VARIANT linux$KERNEL_VARIANT-headers linux-firmware dkms zsh fish neofetch neovim less bat openssh git ccache keychain eza man-db
 
 echo -e "\e[95m\e[1m==>> Generating mountpoints in fstab using genfstab ...\e[0m"
 genfstab -U /mnt >> /mnt/etc/fstab
