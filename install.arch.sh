@@ -39,7 +39,7 @@ mount "${BOOT_DRIVE}1" /mnt/boot
 
 echo -e "\e[95m\e[1m==>> Bootstrapping the partitions using pacstrap ...\e[0m"
 sed -i "s/#ParallelDownloads = [0-9]\+/ParallelDownloads = $(nproc)/g" /etc/pacman.conf
-pacstrap -K /mnt base base-devel linux$KERNEL_VARIANT linux$KERNEL_VARIANT-headers linux-firmware dkms zsh fish neofetch neovim less bat openssh git ccache keychain eza man-db
+pacstrap -K /mnt base base-devel linux$KERNEL_VARIANT linux$KERNEL_VARIANT-headers linux-firmware dkms zsh fish neofetch neovim less bat openssh git ccache keychain eza man-db cronie
 
 echo -e "\e[95m\e[1m==>> Generating mountpoints in fstab using genfstab ...\e[0m"
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -108,7 +108,7 @@ chown -R $USERNAME:$USERNAME /home/$USERNAME/.zshrc /home/$USERNAME/.config /hom
 echo -e "\e[95m\e[1m====>> Enabling no password sudo for users in wheel group ...\e[0m"
 echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-nopasswd
 
-echo -e "\e[95m\e[1m====>> Setting up DHCP network ...\e[0m"
+echo -e "\e[95m\e[1m====>> Setting up DHCP network config ...\e[0m"
 (
 echo "[Match]";
 echo "Name=$NETWORK_DEVICE";
@@ -119,14 +119,12 @@ echo "";
 echo "[Network]";
 echo "DHCP=yes";
 ) > /etc/systemd/network/01-dhcp.network
-systemctl enable systemd-networkd systemd-resolved
 
-echo -e "\e[95m\e[1m====>> Setting up ssh server with authentication key login ...\e[0m"
+echo -e "\e[95m\e[1m====>> Setting up ssh server config with authentication key login ...\e[0m"
 mkdir -p /home/$USERNAME/.ssh
 echo "$SSH_KEY" > /home/$USERNAME/.ssh/authorized_keys
 chown -R $USERNAME:$USERNAME /home/$USERNAME/.ssh
 chmod 0600 /home/$USERNAME/.ssh/authorized_keys
-systemctl enable sshd
 
 echo -e "\e[95m\e[1m====>> Setting up git global user and email configuration ...\e[0m"
 su $USERNAME -c 'git config --global user.name "$FULLNAME"'
@@ -135,6 +133,8 @@ su $USERNAME -c 'git config --global user.email "$USERNAME@$HOSTNAME"'
 echo -e "\e[95m\e[1m====>> Setting up AUR Helper: paru ...\e[0m"
 su $USERNAME -c 'cd && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si --needed --noconfirm --nocheck --noprepare && cd .. && rm -r paru-bin'
 
+echo -e "\e[95m\e[1m====>> Enabling required systemd services ...\e[0m"
+systemctl enable cronie sshd systemd-networkd systemd-resolved
 EOF
 
 echo -e "\e[95m\e[1m==>> Link /etc/resolv.conf to systemd-resolved's stub ...\e[0m"
