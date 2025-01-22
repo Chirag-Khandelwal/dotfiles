@@ -1,5 +1,5 @@
-export EDITOR=nvim
-export PAGER=less
+# ~/.zshrc
+# EDITOR and PAGER are exported in profile.d config
 
 export PATH="$HOME/.feral/bin:$HOME/.scribe/bin:$PATH"
 
