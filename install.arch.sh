@@ -83,6 +83,10 @@ curl -sL https://raw.githubusercontent.com/Electrux/dotfiles/main/dotvimrc > /ro
 mkdir -p /root/.config/nvim
 cp /root/.vimrc /root/.config/nvim/init.vim
 
+echo -e "\e[95m\e[1m====>> Setting up bashrc for root ...\e[0m"
+echo "EDITOR=nvim" >> /root/.bashrc
+echo "PAGER=less" >> /root/.bashrc
+
 echo -e "\e[95m\e[1m====>> Creating admin user $USERNAME ...\e[0m"
 useradd -mG wheel -s /bin/zsh -c "$FULLNAME" $USERNAME
 echo "$USERNAME:$PASSWORD" | chpasswd
