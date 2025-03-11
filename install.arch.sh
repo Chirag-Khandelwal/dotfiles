@@ -11,6 +11,8 @@ FULLNAME="<Full Name>"
 PASSWORD="<a-super-secure-password-here>"
 SSH_KEY="<a public SSH key which will be used to login with the newly created account>"
 
+NPROC="$(nproc)"
+
 set -e
 
 echo -e "\e[95m\e[1m==>> Updating timedatectl to use ntp ...\e[0m"
@@ -39,7 +41,7 @@ mount "${BOOT_DRIVE}1" /mnt/boot
 
 echo -e "\e[95m\e[1m==>> Bootstrapping the partitions using pacstrap ...\e[0m"
 sed -i "s/#ParallelDownloads = [0-9]\+/ParallelDownloads = $(nproc)/g" /etc/pacman.conf
-pacstrap -K /mnt base base-devel linux$KERNEL_VARIANT linux$KERNEL_VARIANT-headers linux-firmware dkms zsh fish neofetch neovim less bat openssh git ccache keychain eza man-db cronie
+pacstrap -K /mnt base base-devel linux$KERNEL_VARIANT linux$KERNEL_VARIANT-headers linux-firmware dkms zsh fish neofetch neovim less bat openssh git ccache keychain eza man-db cronie cmake
 
 echo -e "\e[95m\e[1m==>> Generating mountpoints in fstab using genfstab ...\e[0m"
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -133,6 +135,12 @@ chmod 0600 /home/$USERNAME/.ssh/authorized_keys
 echo -e "\e[95m\e[1m====>> Setting up git global user and email configuration ...\e[0m"
 su $USERNAME -c 'git config --global user.name "$FULLNAME"'
 su $USERNAME -c 'git config --global user.email "$USERNAME@$HOSTNAME"'
+
+echo -e "\e[95m\e[1m====>> Installing Feral ...\e[0m"
+cd && mkdir -p git && cd git && git clone https://github.com/Feral-Lang/Feral.git && cd Feral && mkdir build && cd build
+cd && cd git/Feral/build && PREFIX_DIR='/usr' cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$NPROC install && cd
+feral pkgbootstrap
+feral pkg i ntfy
 
 echo -e "\e[95m\e[1m====>> Setting up AUR Helper: paru ...\e[0m"
 su $USERNAME -c 'cd && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si --needed --noconfirm --nocheck --noprepare && cd .. && rm -r paru-bin'
