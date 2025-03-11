@@ -140,7 +140,7 @@ echo -e "\e[95m\e[1m====>> Installing Feral ...\e[0m"
 cd && mkdir -p git && cd git && git clone https://github.com/Feral-Lang/Feral.git && cd Feral && mkdir build && cd build
 cd && cd git/Feral/build && PREFIX_DIR='/usr' cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$NPROC install && cd
 feral pkgbootstrap
-feral pkg i ntfy
+feral pkg i ntfy emoji
 
 echo -e "\e[95m\e[1m====>> Setting up AUR Helper: paru ...\e[0m"
 su $USERNAME -c 'cd && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si --needed --noconfirm --nocheck --noprepare && cd .. && rm -r paru-bin'
