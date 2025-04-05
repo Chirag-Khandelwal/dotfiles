@@ -10,6 +10,8 @@ USERNAME="<username>"
 FULLNAME="<Full Name>"
 PASSWORD="<a-super-secure-password-here>"
 SSH_KEY="<a public SSH key which will be used to login with the newly created account>"
+USE_PACKAGE_CACHE="true" # Must be false on the package server machine
+PACKAGE_CACHE_SERVER="https://<Cache Server IP/Domain>" # Custom package cache server, only used if USE_PACKAGE_CACHE == 'true'
 
 NPROC="$(nproc)"
 
@@ -141,6 +143,11 @@ cd && mkdir -p git && cd git && git clone https://github.com/Feral-Lang/Feral.gi
 cd && cd git/Feral/build && PREFIX_DIR='/usr' cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$NPROC install && cd
 feral pkgbootstrap
 feral pkg i ntfy emoji
+
+if [[ "$USE_PACKAGE_CACHE" == "true" ]]; then
+	echo -e "\e[95m\e[1m====>> Setting up package cache server ...\e[0m"
+	echo '$PACKAGE_CACHE_SERVER/\$repo/os/\$arch' | cat - /etc/pacman.d/mirrorlist > temp && mv temp /etc/pacman.d/mirrorlist
+fi
 
 echo -e "\e[95m\e[1m====>> Setting up AUR Helper: paru ...\e[0m"
 su $USERNAME -c 'cd && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si --needed --noconfirm --nocheck --noprepare && cd .. && rm -r paru-bin'
