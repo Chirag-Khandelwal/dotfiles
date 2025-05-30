@@ -25,7 +25,7 @@ if status is-interactive
 	abbr --add c 'feral build-project'
 
 	# Stuff to run
-	neofetch
+	fastfetch
 	if type -q feral
 		feral todo l
 		echo

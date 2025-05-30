@@ -2,6 +2,7 @@
 
 HOSTNAME="<hostname>"
 BOOT_DRIVE="/dev/sda"
+USE_GRUB="false" # true to use grub instead of systemd-boot - required for BIOS system installations
 KERNEL_VARIANT="-lts" # suffix of the desired linux kernel variant; empty to get default
 NETWORK_DEVICE="en*" # used to setup systemd-networkd and DHCP - makes sure network is reconnected correctly if router goes down
 TIMEZONE="America/Vancouver"
@@ -24,26 +25,39 @@ echo -e "\e[95m\e[1m==>> Wiping disk: $BOOT_DRIVE ...\e[0m"
 wipefs -a -f ${BOOT_DRIVE}
 
 echo -e "\e[95m\e[1m==>> Setting up boot and root partitions in $BOOT_DRIVE ...\e[0m"
-sgdisk -n 1:0:+1G -t 1:ef00 -c 1:boot ${BOOT_DRIVE}
+if [[ "$USE_GRUB" == "true" ]]; then
+	sgdisk -a 1 -n 1:0:+1M -t 1:ef02 -c 1:boot ${BOOT_DRIVE}
+else
+	sgdisk -n 1:0:+1G -t 1:ef00 -c 1:boot ${BOOT_DRIVE}
+fi
 sgdisk -n 2:0:0 -t 2:8300 -c 2:root ${BOOT_DRIVE}
 
 echo -e "\e[95m\e[1m==>> The partition table is as follows:\e[0m"
 sgdisk -p ${BOOT_DRIVE}
 
 echo -e "\e[95m\e[1m==>> Creating partitions:\e[0m"
-echo -e "\e[95m\e[1m====>> boot ...\e[0m"
-mkfs.fat -F32 "${BOOT_DRIVE}1"
+if [[ "$USE_GRUB" == "false" ]]; then
+	echo -e "\e[95m\e[1m====>> boot ...\e[0m"
+	mkfs.fat -F32 "${BOOT_DRIVE}1"
+fi
 echo -e "\e[95m\e[1m====>> root ...\e[0m"
 mkfs.ext4 -F "${BOOT_DRIVE}2"
 
 echo -e "\e[95m\e[1m==>> Mounting boot and root partitions ...\e[0m"
 mount "${BOOT_DRIVE}2" /mnt
-mkdir /mnt/boot
-mount "${BOOT_DRIVE}1" /mnt/boot
+if [[ "$USE_GRUB" == "false" ]]; then
+	mkdir /mnt/boot
+	mount "${BOOT_DRIVE}1" /mnt/boot
+fi
 
 echo -e "\e[95m\e[1m==>> Bootstrapping the partitions using pacstrap ...\e[0m"
 sed -i "s/#ParallelDownloads = [0-9]\+/ParallelDownloads = $(nproc)/g" /etc/pacman.conf
-pacstrap -K /mnt base base-devel linux$KERNEL_VARIANT linux$KERNEL_VARIANT-headers linux-firmware dkms zsh fish neofetch neovim less bat openssh git ccache keychain eza man-db cronie cmake
+
+EXTRA_PKGS=""
+if [[ "$USE_GRUB" == "true" ]]; then
+	EXTRA_PKGS="${EXTRA_PKGS} grub"
+fi
+pacstrap -K /mnt base base-devel linux$KERNEL_VARIANT linux$KERNEL_VARIANT-headers linux-firmware dkms zsh fish fastfetch neovim less bat openssh git ccache keychain eza man-db cronie cmake $EXTRA_PKGS
 
 echo -e "\e[95m\e[1m==>> Generating mountpoints in fstab using genfstab ...\e[0m"
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -67,20 +81,26 @@ echo "$HOSTNAME" > /etc/hostname
 echo -e "\e[95m\e[1m====>> Running mkinitcpio ...\e[0m"
 mkinitcpio -P
 
-echo -e "\e[95m\e[1m====>> Installing systemd-boot bootloader ...\e[0m"
-bootctl install
-(
-echo "default $HOSTNAME";
-echo "timeout 2";
-echo "editor no";
-) > /boot/loader/loader.conf
-ROOTUUID=$(lsblk -dno UUID ${BOOT_DRIVE}2)
-(
-echo "title	$HOSTNAME";
-echo "linux	/vmlinuz-linux$KERNEL_VARIANT";
-echo "initrd	/initramfs-linux$KERNEL_VARIANT.img";
-echo "options	root=UUID=\$ROOTUUID rw";
-) > /boot/loader/entries/$HOSTNAME.conf
+if [[ "$USE_GRUB" == "true" ]]; then
+	echo -e "\e[95m\e[1m====>> Installing grub bootloader ...\e[0m"
+	grub-install --target=i386-pc ${BOOT_DRIVE}
+	grub-mkconfig -o /boot/grub/grub.cfg
+else
+	echo -e "\e[95m\e[1m====>> Installing systemd-boot bootloader ...\e[0m"
+	bootctl install
+	(
+		echo "default $HOSTNAME";
+		echo "timeout 2";
+		echo "editor no";
+	) > /boot/loader/loader.conf
+	ROOTUUID=$(lsblk -dno UUID ${BOOT_DRIVE}2)
+	(
+		echo "title	$HOSTNAME";
+		echo "linux	/vmlinuz-linux$KERNEL_VARIANT";
+		echo "initrd	/initramfs-linux$KERNEL_VARIANT.img";
+		echo "options	root=UUID=\$ROOTUUID rw";
+	) > /boot/loader/entries/$HOSTNAME.conf
+fi
 
 echo -e "\e[95m\e[1m====>> Setting up vimrc for root ...\e[0m"
 curl -sL https://raw.githubusercontent.com/Electrux/dotfiles/main/dotvimrc > /root/.vimrc
@@ -142,7 +162,7 @@ echo -e "\e[95m\e[1m====>> Installing Feral ...\e[0m"
 cd && mkdir -p git && cd git && git clone https://github.com/Feral-Lang/Feral.git && cd Feral && mkdir build && cd build
 cd && cd git/Feral/build && PREFIX_DIR='/usr' cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$NPROC install && cd
 feral pkgbootstrap
-feral pkg i ntfy emoji
+feral pkg i curl ntfy emoji whattodo
 
 if [[ "$USE_PACKAGE_CACHE" == "true" ]]; then
 	echo -e "\e[95m\e[1m====>> Setting up package cache server ...\e[0m"
