@@ -11,8 +11,8 @@ USERNAME="<username>"
 FULLNAME="<Full Name>"
 PASSWORD="<a-super-secure-password-here>"
 SSH_KEY="<a public SSH key which will be used to login with the newly created account>"
-USE_PACKAGE_CACHE="true" # Must be false on the package server machine
-PACKAGE_CACHE_SERVER="https://<Cache Server IP/Domain>" # Custom package cache server, only used if USE_PACKAGE_CACHE == 'true'
+USE_PACKAGE_CACHE="true" # Must be true even on the package server machine
+PACKAGE_CACHE_SERVER="http://pkg-cache:9129/repo/archlinux" # Custom package cache server, only used if USE_PACKAGE_CACHE == 'true'
 
 NPROC="$(nproc)"
 
