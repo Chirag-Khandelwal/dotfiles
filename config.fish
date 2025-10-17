@@ -8,6 +8,9 @@ if status is-interactive
 		touch $__fish_config_dir/.first-run
 	end
 
+	# Setup fzf
+	fzf --fish | source
+
 	# Git commands
 	abbr --add ga 'git add'
 	abbr --add gb 'git branch'

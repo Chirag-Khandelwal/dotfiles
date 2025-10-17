@@ -57,7 +57,7 @@ EXTRA_PKGS=""
 if [[ "$USE_GRUB" == "true" ]]; then
 	EXTRA_PKGS="${EXTRA_PKGS} grub"
 fi
-pacstrap -K /mnt base base-devel linux$KERNEL_VARIANT linux$KERNEL_VARIANT-headers linux-firmware dkms zsh fish fastfetch neovim less bat openssh git ccache keychain eza man-db cronie cmake $EXTRA_PKGS
+pacstrap -K /mnt base base-devel linux$KERNEL_VARIANT linux$KERNEL_VARIANT-headers linux-firmware dkms zsh fish fzf fastfetch neovim less bat openssh git ccache keychain eza man-db cronie cmake $EXTRA_PKGS
 
 echo -e "\e[95m\e[1m==>> Generating mountpoints in fstab using genfstab ...\e[0m"
 genfstab -U /mnt >> /mnt/etc/fstab
