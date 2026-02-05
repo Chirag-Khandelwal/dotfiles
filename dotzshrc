@@ -1,12 +1,9 @@
-# ~/.zshrc
-# EDITOR and PAGER are exported in profile.d config
-
-export PATH="$HOME/.feral/bin:$HOME/.scribe/bin:$PATH"
+export EDITOR=nvim
+export PAGER=less
 
 eval $(keychain --eval $(/bin/ls ~/.ssh/ | grep 'id_' | grep -v '.pub'))
 
 if [[ $(ps --no-header --pid=$PPID --format=comm) != "fish" && -z ${ZSH_EXECUTION_STRING} && ${SHLVL} == 1 ]]; then
-	if [[ -o login ]]; then LOGIN_OPTIONS='--login'; else LOGIN_OPTIONS=''; fi
-	exec fish $LOGIN_OPTIONS
+    if [[ -o login ]]; then LOGIN_OPTIONS='--login'; else LOGIN_OPTIONS=''; fi
+    exec fish $LOGIN_OPTIONS
 fi
-
