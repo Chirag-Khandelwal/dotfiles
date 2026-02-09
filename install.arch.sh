@@ -147,6 +147,12 @@ echo "RequiredForOnline=routable";
 echo "";
 echo "[Network]";
 echo "DHCP=yes";
+echo "";
+echo "[DHCPv4]";
+echo "UseDomains=true";
+echo "";
+echo "[DHCPv6]";
+echo "UseDomains=true";
 ) > /etc/systemd/network/01-dhcp.network
 
 echo -e "\e[95m\e[1m====>> Setting up ssh server config with authentication key login ...\e[0m"
