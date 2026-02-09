@@ -10,7 +10,8 @@ LOCALE="en_US.UTF-8"
 USERNAME="<username>"
 FULLNAME="<Full Name>"
 PASSWORD="<a-super-secure-password-here>"
-SSH_KEY="<a public SSH key which will be used to login with the newly created account>"
+SSH_KEY1="<a public SSH key which will be used to login with the newly created account>"
+SSH_KEY2="<another public SSH key which will be used to login with the newly created account>"
 USE_PACKAGE_CACHE="true" # Must be true even on the package server machine
 PACKAGE_CACHE_SERVER="http://pkg-cache:9129/repo/archlinux" # Custom package cache server, only used if USE_PACKAGE_CACHE == 'true'
 
@@ -150,7 +151,10 @@ echo "DHCP=yes";
 
 echo -e "\e[95m\e[1m====>> Setting up ssh server config with authentication key login ...\e[0m"
 mkdir -p /home/$USERNAME/.ssh
-echo "$SSH_KEY" > /home/$USERNAME/.ssh/authorized_keys
+echo "$SSH_KEY1" > /home/$USERNAME/.ssh/authorized_keys
+if [[ "$SSH_KEY2" != "" ]]; then
+	echo "$SSH_KEY2" >> /home/$USERNAME/.ssh/authorized_keys
+fi
 chown -R $USERNAME:$USERNAME /home/$USERNAME/.ssh
 chmod 0600 /home/$USERNAME/.ssh/authorized_keys
 
